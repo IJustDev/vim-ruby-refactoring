@@ -134,7 +134,12 @@ function! s:ruby_identify_tokens( tokenlist )
 
   let ignore_to_eos = 0
 
+  let i = 1
   for token in a:tokenlist
+		try
+		let next_token = a:tokenlist[i+1]
+		catch
+		endtry
     if index(reserved,token) != -1
       let sym = "KEYWORD"
     elseif match(token, '\v^\s+$') != -1
@@ -142,7 +147,11 @@ function! s:ruby_identify_tokens( tokenlist )
     elseif match(token, '\v^\:\w+$') != -1
       let sym = "SYMBOL"
     elseif match(token, '\v^\I\i*$') != -1
-      let sym = "VAR"
+			if match(next_token, '\:' != -1)
+				let sym = "SYMBOL"
+			else
+				let sym = "VAR"
+			endif
     elseif match(token, '\v^\@\I\i*$') != -1
       let sym = "IVAR"
     elseif match(token, '\v^\d+(\.\d+)?$') != -1
@@ -189,6 +198,7 @@ function! s:ruby_identify_tokens( tokenlist )
   endif
 
   return statements
+  let i+=1
 endfunction
 
 " Synopsis:
